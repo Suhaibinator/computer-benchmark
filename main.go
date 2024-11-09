@@ -63,12 +63,6 @@ func main() {
 	duration = time.Since(start)
 	results = append(results, BenchmarkResult{"AES Encryption/Decryption", duration})
 
-	// Print the benchmark results
-	fmt.Println("Benchmark Results:")
-	for _, result := range results {
-		fmt.Printf("%-30s: %v\n", result.Name, result.Duration)
-	}
-
 	numCPU := runtime.NumCPU()
 	runtime.GOMAXPROCS(numCPU)
 	fmt.Printf("Using %d CPU cores and %d goroutines per benchmark\n", numCPU, numCPU*3)
@@ -110,7 +104,7 @@ func main() {
 	results = append(results, BenchmarkResult{"Multithreaded AES Encryption", duration})
 
 	// Print the benchmark results
-	fmt.Println("\nMultithreaded Benchmark Results:")
+	fmt.Println("\nBenchmark Results:")
 	for _, result := range results {
 		fmt.Printf("%-40s: %v\n", result.Name, result.Duration)
 	}
