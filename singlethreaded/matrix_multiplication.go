@@ -3,8 +3,15 @@ package singlethreaded
 import "math/rand/v2"
 
 // Matrix Multiplication Benchmark
-func MatrixMultiplicationBenchmark() {
-	size := 512 * 4 // Reduced size to prevent excessive memory usage
+const DefaultMatrixSize = 256
+
+// MatrixMultiplicationBenchmark performs a naive matrix multiplication of an
+// NxN matrix. When size is non-positive, DefaultMatrixSize is used instead.
+func MatrixMultiplicationBenchmark(size int) {
+	if size <= 0 {
+		size = DefaultMatrixSize
+	}
+
 	A := make([][]float64, size)
 	B := make([][]float64, size)
 	C := make([][]float64, size)

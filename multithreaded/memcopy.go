@@ -5,18 +5,24 @@ import (
 	"sync"
 )
 
-const memcopyArraySize = 1_000_000_000 // Fixed array size
+const DefaultMemCopySize = 1_000_000
 
 // MemoryCopySetBenchmark performs multithreaded memory copy and set operations
-func MemoryCopySetBenchmark() {
-	src := make([]byte, memcopyArraySize)
-	dst := make([]byte, memcopyArraySize)
+// on a buffer of the provided size. When size is non-positive,
+// DefaultMemCopySize is used.
+func MemoryCopySetBenchmark(size int) {
+	if size <= 0 {
+		size = DefaultMemCopySize
+	}
+
+	src := make([]byte, size)
+	dst := make([]byte, size)
 
 	numWorkers := runtime.NumCPU() * 3
 	var wg sync.WaitGroup
 
-	chunkSize := memcopyArraySize / numWorkers
-	remainder := memcopyArraySize % numWorkers
+	chunkSize := size / numWorkers
+	remainder := size % numWorkers
 
 	startIndex := 0
 	for w := 0; w < numWorkers; w++ {
@@ -24,8 +30,8 @@ func MemoryCopySetBenchmark() {
 		if w < remainder {
 			endIndex++
 		}
-		if endIndex > memcopyArraySize {
-			endIndex = memcopyArraySize
+		if endIndex > size {
+			endIndex = size
 		}
 
 		wg.Add(1)
@@ -40,7 +46,7 @@ func MemoryCopySetBenchmark() {
 		}(startIndex, endIndex)
 
 		startIndex = endIndex
-		if startIndex >= memcopyArraySize {
+		if startIndex >= size {
 			break
 		}
 	}

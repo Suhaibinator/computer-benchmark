@@ -6,23 +6,28 @@ import (
 	"sync"
 )
 
-const matrixMultiplicationSize = 4096 // Fixed matrix size for consistent workload
+const DefaultMatrixSize = 256
 
-// MatrixMultiplicationBenchmark performs multithreaded matrix multiplication
-func MatrixMultiplicationBenchmark() {
-	A := generateMatrix(matrixMultiplicationSize)
-	B := generateMatrix(matrixMultiplicationSize)
-	C := make([][]float64, matrixMultiplicationSize)
+// MatrixMultiplicationBenchmark performs multithreaded matrix multiplication on
+// an NxN matrix. When size is non-positive, DefaultMatrixSize is used.
+func MatrixMultiplicationBenchmark(size int) {
+	if size <= 0 {
+		size = DefaultMatrixSize
+	}
+
+	A := generateMatrix(size)
+	B := generateMatrix(size)
+	C := make([][]float64, size)
 	for i := range C {
-		C[i] = make([]float64, matrixMultiplicationSize)
+		C[i] = make([]float64, size)
 	}
 
 	numWorkers := runtime.NumCPU() * 3 // Use thrice the number of CPUs
 	var wg sync.WaitGroup
 
 	// Calculate the number of rows per worker and handle any remainder
-	rowsPerWorker := matrixMultiplicationSize / numWorkers
-	remainder := matrixMultiplicationSize % numWorkers
+	rowsPerWorker := size / numWorkers
+	remainder := size % numWorkers
 
 	startRow := 0
 	for w := 0; w < numWorkers; w++ {
@@ -31,17 +36,17 @@ func MatrixMultiplicationBenchmark() {
 		if w < remainder {
 			endRow++
 		}
-		if endRow > matrixMultiplicationSize {
-			endRow = matrixMultiplicationSize
+		if endRow > size {
+			endRow = size
 		}
 
 		wg.Add(1)
 		go func(start, end int) {
 			defer wg.Done()
 			for i := start; i < end; i++ {
-				for j := 0; j < matrixMultiplicationSize; j++ {
+				for j := 0; j < size; j++ {
 					sum := 0.0
-					for k := 0; k < matrixMultiplicationSize; k++ {
+					for k := 0; k < size; k++ {
 						sum += A[i][k] * B[k][j]
 					}
 					C[i][j] = sum
@@ -50,7 +55,7 @@ func MatrixMultiplicationBenchmark() {
 		}(startRow, endRow)
 
 		startRow = endRow
-		if startRow >= matrixMultiplicationSize {
+		if startRow >= size {
 			break
 		}
 	}

@@ -6,9 +6,17 @@ import (
 )
 
 // Cryptographic Algorithm Benchmark (AES Encryption/Decryption)
-func CryptoBenchmark() {
+const DefaultCryptoSize = 1_000_000
+
+// CryptoBenchmark runs a simple AES encryption/decryption cycle on a buffer of
+// the given size. When size is non-positive, DefaultCryptoSize is used.
+func CryptoBenchmark(size int) {
+	if size <= 0 {
+		size = DefaultCryptoSize
+	}
+
 	key := make([]byte, 32) // 256-bit key
-	plaintext := make([]byte, 256*10000000)
+	plaintext := make([]byte, size)
 
 	// Initialize key and plaintext with random data
 	_, err := rand.Read(key)

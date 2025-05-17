@@ -3,8 +3,15 @@ package singlethreaded
 import "crypto/rand"
 
 // Memory Copy and Set Operations Benchmark
-func MemoryCopySetBenchmark() {
-	size := 25 * 1000_000_000 // Size in bytes
+const DefaultMemCopySize = 1_000_000
+
+// MemoryCopySetBenchmark performs copy and set operations on a buffer of the
+// provided size. A non-positive size falls back to DefaultMemCopySize.
+func MemoryCopySetBenchmark(size int) {
+	if size <= 0 {
+		size = DefaultMemCopySize
+	}
+
 	src := make([]byte, size)
 	dst := make([]byte, size)
 

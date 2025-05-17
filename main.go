@@ -1,12 +1,31 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"runtime"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Suhaibinator/computer-benchmark/multithreaded"
 	"github.com/Suhaibinator/computer-benchmark/singlethreaded"
+)
+
+const (
+	largeMatrixSize       = 512 * 4
+	largeStreamSize       = 1_000_000_000
+	largeFFTSize          = 1 << 20
+	largeMemCopySize      = 25 * 1_000_000_000
+	largeSortSize         = 1_000_000_000
+	largeCryptoSize       = 256 * 10_000_000
+	largeMultiMatrixSize  = 4096
+	largeMultiStreamSize  = 6 * 1_000_000_000
+	largeMultiFFTSize     = 1 << 25
+	largeMultiMemCopySize = 1_000_000_000
+	largeMultiSortSize    = 1_000_000_000
+	largeMultiCryptoSize  = 3 * 1_000_000_000
 )
 
 // BenchmarkResult holds the execution time of a benchmark
@@ -15,97 +34,84 @@ type BenchmarkResult struct {
 	Duration time.Duration
 }
 
-func main() {
-	// Ensure maximum CPU utilization
-	runtime.GOMAXPROCS(runtime.NumCPU())
+// Benchmark represents a named benchmark function
+type Benchmark struct {
+	Name string
+	Run  func()
+}
 
-	var results []BenchmarkResult
+var benchmarkList = []Benchmark{
+	{"Matrix Multiplication", func() { singlethreaded.MatrixMultiplicationBenchmark(largeMatrixSize) }},
+	{"STREAM Memory Bandwidth", func() { singlethreaded.StreamBenchmark(largeStreamSize) }},
+	{"Fast Fourier Transform", func() { singlethreaded.FftBenchmark(largeFFTSize) }},
+	{"Memory Copy and Set", func() { singlethreaded.MemoryCopySetBenchmark(largeMemCopySize) }},
+	{"Sorting Algorithms", func() { singlethreaded.SortingBenchmark(largeSortSize) }},
+	{"AES Encryption/Decryption", func() { singlethreaded.CryptoBenchmark(largeCryptoSize) }},
+	{"Multithreaded Matrix Multiplication", func() { multithreaded.MatrixMultiplicationBenchmark(largeMultiMatrixSize) }},
+	{"Multithreaded STREAM Memory Bandwidth", func() { multithreaded.StreamBenchmark(largeMultiStreamSize) }},
+	{"Multithreaded Fast Fourier Transform", func() { multithreaded.FftBenchmark(largeMultiFFTSize) }},
+	{"Multithreaded Memory Copy and Set", func() { multithreaded.MemoryCopySetBenchmark(largeMultiMemCopySize) }},
+	{"Multithreaded Sorting Algorithms", func() { multithreaded.SortingBenchmark(largeMultiSortSize) }},
+	{"Multithreaded AES Encryption", func() { multithreaded.CryptoBenchmark(largeMultiCryptoSize) }},
+}
 
-	fmt.Println("Starting Matrix Multiplication")
-	// Matrix Multiplication Benchmark
+func runBenchmark(name string, fn func()) BenchmarkResult {
 	start := time.Now()
-	singlethreaded.MatrixMultiplicationBenchmark()
+	fn()
 	duration := time.Since(start)
-	results = append(results, BenchmarkResult{"Matrix Multiplication", duration})
+	return BenchmarkResult{Name: name, Duration: duration}
+}
 
-	fmt.Println("Starting STREAM Benchmark")
-	// STREAM Benchmark
-	start = time.Now()
-	singlethreaded.StreamBenchmark()
-	duration = time.Since(start)
-	results = append(results, BenchmarkResult{"STREAM Memory Bandwidth", duration})
+func runAllBenchmarks() []BenchmarkResult {
+	results := make([]BenchmarkResult, 0, len(benchmarkList))
+	for _, b := range benchmarkList {
+		fmt.Println("Starting " + b.Name)
+		results = append(results, runBenchmark(b.Name, b.Run))
+	}
+	return results
+}
 
-	fmt.Println("Starting FFT Benchmark")
-	// FFT Benchmark
-	start = time.Now()
-	singlethreaded.FftBenchmark()
-	duration = time.Since(start)
-	results = append(results, BenchmarkResult{"Fast Fourier Transform", duration})
-
-	fmt.Println("Starting Memcopy Benchmark")
-	// Memory Copy and Set Operations Benchmark
-	start = time.Now()
-	singlethreaded.MemoryCopySetBenchmark()
-	duration = time.Since(start)
-	results = append(results, BenchmarkResult{"Memory Copy and Set", duration})
-
-	fmt.Println("Start Sorting Benchmark")
-	// Sorting Benchmark
-	start = time.Now()
-	singlethreaded.SortingBenchmark()
-	duration = time.Since(start)
-	results = append(results, BenchmarkResult{"Sorting Algorithms", duration})
-
-	fmt.Println("Start Cryptographic Benchmark")
-	// Cryptographic Algorithm Benchmark
-	start = time.Now()
-	singlethreaded.CryptoBenchmark()
-	duration = time.Since(start)
-	results = append(results, BenchmarkResult{"AES Encryption/Decryption", duration})
-
-	numCPU := runtime.NumCPU()
-	runtime.GOMAXPROCS(numCPU)
-	fmt.Printf("Using %d CPU cores and %d goroutines per benchmark\n", numCPU, numCPU*3)
-
-	fmt.Println("Starting Multithreaded Matrix Multiplication")
-	start = time.Now()
-	multithreaded.MatrixMultiplicationBenchmark()
-	duration = time.Since(start)
-	results = append(results, BenchmarkResult{"Multithreaded Matrix Multiplication", duration})
-
-	fmt.Println("Starting Multithreaded STREAM Benchmark")
-	start = time.Now()
-	multithreaded.StreamBenchmark()
-	duration = time.Since(start)
-	results = append(results, BenchmarkResult{"Multithreaded STREAM Memory Bandwidth", duration})
-
-	fmt.Println("Starting Multithreaded FFT Benchmark")
-	start = time.Now()
-	multithreaded.FftBenchmark()
-	duration = time.Since(start)
-	results = append(results, BenchmarkResult{"Multithreaded Fast Fourier Transform", duration})
-
-	fmt.Println("Starting Multithreaded Memory Copy and Set Benchmark")
-	start = time.Now()
-	multithreaded.MemoryCopySetBenchmark()
-	duration = time.Since(start)
-	results = append(results, BenchmarkResult{"Multithreaded Memory Copy and Set", duration})
-
-	fmt.Println("Starting Multithreaded Sorting Benchmark")
-	start = time.Now()
-	multithreaded.SortingBenchmark()
-	duration = time.Since(start)
-	results = append(results, BenchmarkResult{"Multithreaded Sorting Algorithms", duration})
-
-	fmt.Println("Starting Multithreaded Cryptographic Benchmark")
-	start = time.Now()
-	multithreaded.CryptoBenchmark()
-	duration = time.Since(start)
-	results = append(results, BenchmarkResult{"Multithreaded AES Encryption", duration})
-
-	// Print the benchmark results
+func printResults(results []BenchmarkResult) {
 	fmt.Println("\nBenchmark Results:")
 	for _, result := range results {
 		fmt.Printf("%-40s: %v\n", result.Name, result.Duration)
+	}
+	fmt.Println()
+}
+
+func main() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	reader := bufio.NewReader(os.Stdin)
+
+	for {
+		fmt.Println("Select a benchmark to run:")
+		fmt.Println("0) Run all benchmarks")
+		for i, b := range benchmarkList {
+			fmt.Printf("%d) %s\n", i+1, b.Name)
+		}
+		fmt.Print("q) Quit\n> ")
+		input, _ := reader.ReadString('\n')
+		input = strings.TrimSpace(input)
+
+		if strings.EqualFold(input, "q") {
+			return
+		}
+
+		if input == "0" {
+			results := runAllBenchmarks()
+			printResults(results)
+			continue
+		}
+
+		idx, err := strconv.Atoi(input)
+		if err != nil || idx < 1 || idx > len(benchmarkList) {
+			fmt.Println("Invalid selection")
+			continue
+		}
+
+		b := benchmarkList[idx-1]
+		fmt.Println("Starting " + b.Name)
+		result := runBenchmark(b.Name, b.Run)
+		printResults([]BenchmarkResult{result})
 	}
 }

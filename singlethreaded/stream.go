@@ -1,8 +1,15 @@
 package singlethreaded
 
-// STREAM Benchmark
-func StreamBenchmark() {
-	size := 1000000000 // Reduced size to prevent excessive memory usage
+const DefaultStreamSize = 1_000_000
+
+// StreamBenchmark performs the classic STREAM memory bandwidth test on an
+// array of the provided size. If size is non-positive, DefaultStreamSize is
+// used.
+func StreamBenchmark(size int) {
+	if size <= 0 {
+		size = DefaultStreamSize
+	}
+
 	a := make([]float64, size)
 	b := make([]float64, size)
 	c := make([]float64, size)

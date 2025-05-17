@@ -8,11 +8,16 @@ import (
 	"sync"
 )
 
-const fftSize = 1 << 25 // Fixed size (must be a power of two)
+const DefaultFFTSize = 1 << 16
 
-// FftBenchmark performs a multithreaded Fast Fourier Transform
-func FftBenchmark() {
-	data := make([]complex128, fftSize)
+// FftBenchmark performs a multithreaded Fast Fourier Transform on a slice of
+// the given size. The size must be a power of two. When size is non-positive,
+// DefaultFFTSize is used.
+func FftBenchmark(size int) {
+	if size <= 0 {
+		size = DefaultFFTSize
+	}
+	data := make([]complex128, size)
 	for i := range data {
 		data[i] = complex(rand.Float64(), 0)
 	}

@@ -3,8 +3,14 @@ package singlethreaded
 import "math/rand"
 
 // Sorting Benchmark
-func SortingBenchmark() {
-	size := 1_000_000_000
+const DefaultSortSize = 1_000_000
+
+// SortingBenchmark sorts a slice of integers of the given size. When the size
+// is non-positive, DefaultSortSize is used.
+func SortingBenchmark(size int) {
+	if size <= 0 {
+		size = DefaultSortSize
+	}
 	data := make([]int, size)
 
 	// Initialize array with random integers
