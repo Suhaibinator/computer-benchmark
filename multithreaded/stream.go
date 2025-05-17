@@ -5,19 +5,19 @@ import (
 	"sync"
 )
 
-const streamArraySize = 6 * 1_000_000_000 // Fixed array size
+var streamArraySize int64 = 6 * 1_000_000_000 // Fixed array size
 
 // StreamBenchmark performs multithreaded memory bandwidth test
 func StreamBenchmark() {
-	a := make([]float64, streamArraySize)
-	b := make([]float64, streamArraySize)
-	c := make([]float64, streamArraySize)
+	a := make([]float64, int(streamArraySize))
+	b := make([]float64, int(streamArraySize))
+	c := make([]float64, int(streamArraySize))
 
 	numWorkers := runtime.NumCPU() * 3
 	var wg sync.WaitGroup
 
-	chunkSize := streamArraySize / numWorkers
-	remainder := streamArraySize % numWorkers
+	chunkSize := int(streamArraySize) / numWorkers
+	remainder := int(streamArraySize) % numWorkers
 
 	startIndex := 0
 	for w := 0; w < numWorkers; w++ {
@@ -25,8 +25,8 @@ func StreamBenchmark() {
 		if w < remainder {
 			endIndex++
 		}
-		if endIndex > streamArraySize {
-			endIndex = streamArraySize
+		if endIndex > int(streamArraySize) {
+			endIndex = int(streamArraySize)
 		}
 
 		wg.Add(1)
@@ -44,7 +44,7 @@ func StreamBenchmark() {
 		}(startIndex, endIndex)
 
 		startIndex = endIndex
-		if startIndex >= streamArraySize {
+		if startIndex >= int(streamArraySize) {
 			break
 		}
 	}
