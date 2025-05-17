@@ -1,4 +1,5 @@
 # computer-benchmark
+[![Build](https://github.com/Suhaibinator/computer-benchmark/actions/workflows/go-build.yml/badge.svg)](https://github.com/Suhaibinator/computer-benchmark/actions/workflows/go-build.yml)
 
 Some tools for benchmarking computer performance.
 

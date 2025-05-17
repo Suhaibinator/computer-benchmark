@@ -89,12 +89,10 @@ func main() {
 		}
 
 		idx, err := strconv.Atoi(input)
-		if err != nil || idx < 1 || idx > len(benchmarkList) {
-
-			fmt.Println("Invalid selection\n")
-
-			continue
-		}
+               if err != nil || idx < 1 || idx > len(benchmarkList) {
+                       fmt.Println("Invalid selection")
+                       continue
+               }
 
 		b := benchmarkList[idx-1]
 		fmt.Println("Starting " + b.Name)
