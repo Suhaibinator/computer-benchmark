@@ -90,7 +90,9 @@ func main() {
 
 		idx, err := strconv.Atoi(input)
 		if err != nil || idx < 1 || idx > len(benchmarkList) {
-			fmt.Println("Invalid selection")
+
+			fmt.Println("Invalid selection\n")
+
 			continue
 		}
 
