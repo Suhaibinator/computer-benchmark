@@ -4,12 +4,12 @@ import "math/rand"
 
 // Sorting Benchmark
 func SortingBenchmark() {
-	size := 1_000_000_000
-	data := make([]int, size)
+	var size int64 = 1_000_000_000
+	data := make([]int, int(size))
 
 	// Initialize array with random integers
 	for i := range data {
-		data[i] = rand.Intn(size)
+		data[i] = rand.Intn(int(size))
 	}
 
 	// Sort the array

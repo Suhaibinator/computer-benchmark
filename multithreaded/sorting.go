@@ -7,11 +7,11 @@ import (
 	"sync"
 )
 
-const sortArraySize = 1_000_000_000 // Fixed array size
+var sortArraySize int64 = 1_000_000_000 // Fixed array size
 
 // SortingBenchmark performs multithreaded sorting
 func SortingBenchmark() {
-	data := make([]int, sortArraySize)
+	data := make([]int, int(sortArraySize))
 	for i := range data {
 		data[i] = rand.Int()
 	}
