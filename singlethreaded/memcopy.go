@@ -4,9 +4,9 @@ import "crypto/rand"
 
 // Memory Copy and Set Operations Benchmark
 func MemoryCopySetBenchmark() {
-	size := 25 * 1000_000_000 // Size in bytes
-	src := make([]byte, size)
-	dst := make([]byte, size)
+	var size int64 = 25 * 1_000_000_000 // Size in bytes
+	src := make([]byte, int(size))
+	dst := make([]byte, int(size))
 
 	// Initialize source with random data
 	_, err := rand.Read(src)
@@ -18,7 +18,7 @@ func MemoryCopySetBenchmark() {
 	copy(dst, src)
 
 	// Memory Set
-	for i := 0; i < size; i++ {
+	for i := 0; i < int(size); i++ {
 		dst[i] = 0
 	}
 }

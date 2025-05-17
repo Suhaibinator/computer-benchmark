@@ -8,7 +8,8 @@ import (
 // Cryptographic Algorithm Benchmark (AES Encryption/Decryption)
 func CryptoBenchmark() {
 	key := make([]byte, 32) // 256-bit key
-	plaintext := make([]byte, 256*10000000)
+	var plaintextSize int64 = 256 * 10_000_000
+	plaintext := make([]byte, int(plaintextSize))
 
 	// Initialize key and plaintext with random data
 	_, err := rand.Read(key)
