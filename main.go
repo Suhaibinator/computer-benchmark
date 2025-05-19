@@ -26,18 +26,18 @@ type Benchmark struct {
 }
 
 var benchmarkList = []Benchmark{
-	{"Matrix Multiplication", singlethreaded.MatrixMultiplicationBenchmark},
-	{"STREAM Memory Bandwidth", singlethreaded.StreamBenchmark},
-	{"Fast Fourier Transform", singlethreaded.FftBenchmark},
-	{"Memory Copy and Set", singlethreaded.MemoryCopySetBenchmark},
-	{"Sorting Algorithms", singlethreaded.SortingBenchmark},
-	{"AES Encryption/Decryption", singlethreaded.CryptoBenchmark},
-	{"Multithreaded Matrix Multiplication", multithreaded.MatrixMultiplicationBenchmark},
-	{"Multithreaded STREAM Memory Bandwidth", multithreaded.StreamBenchmark},
-	{"Multithreaded Fast Fourier Transform", multithreaded.FftBenchmark},
-	{"Multithreaded Memory Copy and Set", multithreaded.MemoryCopySetBenchmark},
-	{"Multithreaded Sorting Algorithms", multithreaded.SortingBenchmark},
-	{"Multithreaded AES Encryption", multithreaded.CryptoBenchmark},
+	{"Matrix Multiplication", func() { singlethreaded.MatrixMultiplicationBenchmark(singlethreaded.LargeMatrixMultiplicationSize) }},
+	{"STREAM Memory Bandwidth", func() { singlethreaded.StreamBenchmark(singlethreaded.LargeStreamSize) }},
+	{"Fast Fourier Transform", func() { singlethreaded.FftBenchmark(singlethreaded.LargeFFTSize) }},
+	{"Memory Copy and Set", func() { singlethreaded.MemoryCopySetBenchmark(singlethreaded.LargeMemoryCopySize) }},
+	{"Sorting Algorithms", func() { singlethreaded.SortingBenchmark(singlethreaded.LargeSortSize) }},
+	{"AES Encryption/Decryption", func() { singlethreaded.CryptoBenchmark(singlethreaded.LargePlaintextSize) }},
+	{"Multithreaded Matrix Multiplication", func() { multithreaded.MatrixMultiplicationBenchmark(multithreaded.LargeMatrixMultiplicationSize) }},
+	{"Multithreaded STREAM Memory Bandwidth", func() { multithreaded.StreamBenchmark(multithreaded.LargeStreamArraySize) }},
+	{"Multithreaded Fast Fourier Transform", func() { multithreaded.FftBenchmark(multithreaded.LargeFFTSize) }},
+	{"Multithreaded Memory Copy and Set", func() { multithreaded.MemoryCopySetBenchmark(multithreaded.LargeMemcopyArraySize) }},
+	{"Multithreaded Sorting Algorithms", func() { multithreaded.SortingBenchmark(multithreaded.LargeSortArraySize) }},
+	{"Multithreaded AES Encryption", func() { multithreaded.CryptoBenchmark(multithreaded.LargeDataSize) }},
 }
 
 func runBenchmark(name string, fn func()) BenchmarkResult {
@@ -89,10 +89,10 @@ func main() {
 		}
 
 		idx, err := strconv.Atoi(input)
-               if err != nil || idx < 1 || idx > len(benchmarkList) {
-                       fmt.Println("Invalid selection")
-                       continue
-               }
+		if err != nil || idx < 1 || idx > len(benchmarkList) {
+			fmt.Println("Invalid selection")
+			continue
+		}
 
 		b := benchmarkList[idx-1]
 		fmt.Println("Starting " + b.Name)

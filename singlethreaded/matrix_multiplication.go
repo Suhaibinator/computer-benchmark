@@ -3,8 +3,17 @@ package singlethreaded
 import "math/rand/v2"
 
 // Matrix Multiplication Benchmark
-func MatrixMultiplicationBenchmark() {
-	size := 512 * 4 // Reduced size to prevent excessive memory usage
+// LargeMatrixMultiplicationSize controls the default workload for the
+// MatrixMultiplicationBenchmark when used from the command line.
+// Tests should supply a smaller value.
+var LargeMatrixMultiplicationSize = 512 * 4
+
+// MatrixMultiplicationBenchmark performs a simple matrix multiplication using
+// the provided matrix dimension. If size is <= 0 a small default is used.
+func MatrixMultiplicationBenchmark(size int) {
+	if size <= 0 {
+		size = 256
+	}
 	A := make([][]float64, size)
 	B := make([][]float64, size)
 	C := make([][]float64, size)

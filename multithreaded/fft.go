@@ -8,11 +8,18 @@ import (
 	"sync"
 )
 
-const fftSize = 1 << 25 // Fixed size (must be a power of two)
+// LargeFFTSize sets the input length for the multithreaded FFT benchmark when
+// invoked from the command line.
+const LargeFFTSize = 1 << 25 // must be a power of two
 
 // FftBenchmark performs a multithreaded Fast Fourier Transform
-func FftBenchmark() {
-	data := make([]complex128, fftSize)
+// FftBenchmark performs a multithreaded Fast Fourier Transform over a slice of
+// the provided size. If size <= 0 a smaller power-of-two length is used.
+func FftBenchmark(size int) {
+	if size <= 0 {
+		size = 1 << 10
+	}
+	data := make([]complex128, size)
 	for i := range data {
 		data[i] = complex(rand.Float64(), 0)
 	}

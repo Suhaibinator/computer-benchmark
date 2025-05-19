@@ -6,10 +6,18 @@ import (
 )
 
 // Cryptographic Algorithm Benchmark (AES Encryption/Decryption)
-func CryptoBenchmark() {
+// LargePlaintextSize configures the workload for CryptoBenchmark when executed
+// from the command line.
+var LargePlaintextSize = 256 * 10_000_000
+
+// CryptoBenchmark encrypts and decrypts a byte slice of the provided length.
+// A default of one million bytes is used if size <= 0.
+func CryptoBenchmark(size int) {
+	if size <= 0 {
+		size = 1_000_000
+	}
 	key := make([]byte, 32) // 256-bit key
-	var plaintextSize int64 = 256 * 10_000_000
-	plaintext := make([]byte, int(plaintextSize))
+	plaintext := make([]byte, size)
 
 	// Initialize key and plaintext with random data
 	_, err := rand.Read(key)

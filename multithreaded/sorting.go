@@ -7,11 +7,17 @@ import (
 	"sync"
 )
 
-var sortArraySize int64 = 1_000_000_000 // Fixed array size
+// LargeSortArraySize is the slice length used when running the multithreaded
+// sorting benchmark from the command line.
+var LargeSortArraySize = 1_000_000_000
 
-// SortingBenchmark performs multithreaded sorting
-func SortingBenchmark() {
-	data := make([]int, int(sortArraySize))
+// SortingBenchmark performs multithreaded sorting of a slice of the given
+// length. If size <= 0 a default of one million elements is used.
+func SortingBenchmark(size int) {
+	if size <= 0 {
+		size = 1_000_000
+	}
+	data := make([]int, size)
 	for i := range data {
 		data[i] = rand.Int()
 	}
