@@ -5,18 +5,26 @@ import (
 	"sync"
 )
 
-var memcopyArraySize int64 = 1_000_000_000 // Fixed array size
+// LargeMemcopyArraySize defines the slice length used by the multithreaded
+// memory benchmark when run from the command line.
+var LargeMemcopyArraySize = 1_000_000_000
 
 // MemoryCopySetBenchmark performs multithreaded memory copy and set operations
-func MemoryCopySetBenchmark() {
-	src := make([]byte, int(memcopyArraySize))
-	dst := make([]byte, int(memcopyArraySize))
+// MemoryCopySetBenchmark performs multithreaded memory copy and set operations
+// on the provided number of bytes. If size <= 0 a default of one million bytes
+// is used.
+func MemoryCopySetBenchmark(size int) {
+	if size <= 0 {
+		size = 1_000_000
+	}
+	src := make([]byte, size)
+	dst := make([]byte, size)
 
 	numWorkers := runtime.NumCPU() * 3
 	var wg sync.WaitGroup
 
-	chunkSize := int(memcopyArraySize) / numWorkers
-	remainder := int(memcopyArraySize) % numWorkers
+	chunkSize := size / numWorkers
+	remainder := size % numWorkers
 
 	startIndex := 0
 	for w := 0; w < numWorkers; w++ {
@@ -24,8 +32,8 @@ func MemoryCopySetBenchmark() {
 		if w < remainder {
 			endIndex++
 		}
-		if endIndex > int(memcopyArraySize) {
-			endIndex = int(memcopyArraySize)
+		if endIndex > size {
+			endIndex = size
 		}
 
 		wg.Add(1)
@@ -40,7 +48,7 @@ func MemoryCopySetBenchmark() {
 		}(startIndex, endIndex)
 
 		startIndex = endIndex
-		if startIndex >= int(memcopyArraySize) {
+		if startIndex >= size {
 			break
 		}
 	}

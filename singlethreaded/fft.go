@@ -7,8 +7,16 @@ import (
 )
 
 // Fast Fourier Transform Benchmark
-func FftBenchmark() {
-	size := 1 << 20 // FFT size (must be power of 2)
+// LargeFFTSize sets the default data length for the FftBenchmark when running
+// from the command line.
+var LargeFFTSize = 1 << 20
+
+// FftBenchmark runs a Fast Fourier Transform over a slice of the provided
+// size. If size <= 0 a small power-of-two length is chosen.
+func FftBenchmark(size int) {
+	if size <= 0 {
+		size = 1 << 10
+	}
 	data := make([]complex128, size)
 
 	// Initialize data with random values

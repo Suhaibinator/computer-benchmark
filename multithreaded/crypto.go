@@ -8,14 +8,20 @@ import (
 	"sync"
 )
 
-var dataSize int64 = 3 * 1_000_000_000 // Fixed data size
+// LargeDataSize configures the payload size used by the multithreaded AES
+// benchmark when run from the command line.
+var LargeDataSize = 3 * 1_000_000_000
 
-// CryptoBenchmark performs multithreaded AES encryption
-func CryptoBenchmark() {
+// CryptoBenchmark performs multithreaded AES encryption over the given number
+// of bytes. If size <= 0 a default of one million bytes is used.
+func CryptoBenchmark(size int) {
+	if size <= 0 {
+		size = 1_000_000
+	}
 	key := make([]byte, 32) // AES-256
 	rand.Read(key)
 
-	data := make([]byte, int(dataSize))
+	data := make([]byte, size)
 	rand.Read(data)
 
 	block, err := aes.NewCipher(key)
@@ -26,10 +32,10 @@ func CryptoBenchmark() {
 	numWorkers := runtime.NumCPU() * 3
 	var wg sync.WaitGroup
 
-	chunkSize := int(dataSize) / numWorkers
-	remainder := int(dataSize) % numWorkers
+	chunkSize := size / numWorkers
+	remainder := size % numWorkers
 
-	encrypted := make([]byte, int(dataSize))
+	encrypted := make([]byte, size)
 
 	startIndex := 0
 	for w := 0; w < numWorkers; w++ {
@@ -37,8 +43,8 @@ func CryptoBenchmark() {
 		if w < remainder {
 			endIndex++
 		}
-		if endIndex > int(dataSize) {
-			endIndex = int(dataSize)
+		if endIndex > size {
+			endIndex = size
 		}
 
 		wg.Add(1)
@@ -51,7 +57,7 @@ func CryptoBenchmark() {
 		}(startIndex, endIndex)
 
 		startIndex = endIndex
-		if startIndex >= int(dataSize) {
+		if startIndex >= size {
 			break
 		}
 	}

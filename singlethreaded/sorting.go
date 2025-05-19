@@ -3,13 +3,21 @@ package singlethreaded
 import "math/rand"
 
 // Sorting Benchmark
-func SortingBenchmark() {
-	var size int64 = 1_000_000_000
-	data := make([]int, int(size))
+// LargeSortSize indicates the number of elements used when running the sorting
+// benchmark from the command line.
+var LargeSortSize = 1_000_000_000
+
+// SortingBenchmark sorts a slice with the given length. If size <= 0 a default
+// of one million elements is used.
+func SortingBenchmark(size int) {
+	if size <= 0 {
+		size = 1_000_000
+	}
+	data := make([]int, size)
 
 	// Initialize array with random integers
 	for i := range data {
-		data[i] = rand.Intn(int(size))
+		data[i] = rand.Intn(size)
 	}
 
 	// Sort the array
