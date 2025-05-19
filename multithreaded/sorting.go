@@ -7,11 +7,15 @@ import (
 	"sync"
 )
 
-const sortArraySize = 1_000_000_000 // Fixed array size
+const DefaultSortSize = 1_000_000
 
-// SortingBenchmark performs multithreaded sorting
-func SortingBenchmark() {
-	data := make([]int, sortArraySize)
+// SortingBenchmark performs multithreaded sorting on a slice of the provided
+// size. When size is non-positive, DefaultSortSize is used.
+func SortingBenchmark(size int) {
+	if size <= 0 {
+		size = DefaultSortSize
+	}
+	data := make([]int, size)
 	for i := range data {
 		data[i] = rand.Int()
 	}

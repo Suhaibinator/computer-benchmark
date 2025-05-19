@@ -7,8 +7,14 @@ import (
 )
 
 // Fast Fourier Transform Benchmark
-func FftBenchmark() {
-	size := 1 << 20 // FFT size (must be power of 2)
+const DefaultFFTSize = 1 << 16
+
+// FftBenchmark executes a simple FFT over the provided size. The size must be
+// a power of two. If a non-positive size is supplied, DefaultFFTSize is used.
+func FftBenchmark(size int) {
+	if size <= 0 {
+		size = DefaultFFTSize
+	}
 	data := make([]complex128, size)
 
 	// Initialize data with random values

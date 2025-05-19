@@ -8,14 +8,18 @@ import (
 	"sync"
 )
 
-const dataSize = 3 * 1_000_000_000 // Fixed data size
+const DefaultCryptoSize = 1_000_000
 
-// CryptoBenchmark performs multithreaded AES encryption
-func CryptoBenchmark() {
+// CryptoBenchmark performs multithreaded AES encryption on a buffer of the
+// given size. When size is non-positive, DefaultCryptoSize is used.
+func CryptoBenchmark(size int) {
+	if size <= 0 {
+		size = DefaultCryptoSize
+	}
 	key := make([]byte, 32) // AES-256
 	rand.Read(key)
 
-	data := make([]byte, dataSize)
+	data := make([]byte, size)
 	rand.Read(data)
 
 	block, err := aes.NewCipher(key)
@@ -26,10 +30,10 @@ func CryptoBenchmark() {
 	numWorkers := runtime.NumCPU() * 3
 	var wg sync.WaitGroup
 
-	chunkSize := dataSize / numWorkers
-	remainder := dataSize % numWorkers
+	chunkSize := size / numWorkers
+	remainder := size % numWorkers
 
-	encrypted := make([]byte, dataSize)
+	encrypted := make([]byte, size)
 
 	startIndex := 0
 	for w := 0; w < numWorkers; w++ {
@@ -37,8 +41,8 @@ func CryptoBenchmark() {
 		if w < remainder {
 			endIndex++
 		}
-		if endIndex > dataSize {
-			endIndex = dataSize
+		if endIndex > size {
+			endIndex = size
 		}
 
 		wg.Add(1)
@@ -51,7 +55,7 @@ func CryptoBenchmark() {
 		}(startIndex, endIndex)
 
 		startIndex = endIndex
-		if startIndex >= dataSize {
+		if startIndex >= size {
 			break
 		}
 	}
